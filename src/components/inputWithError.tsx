@@ -19,7 +19,7 @@ function InputWithError(props: InputWithErrorProps): React.ReactElement {
   const { labelName, inputId, registerError, error, ...customProps } = props;
 
   return (
-    <label className="form-control" htmlFor={inputId}>
+    <label className="form-control w-full" htmlFor={inputId}>
       <span className="label label-text">{labelName}</span>{" "}
       <input
         className="mb-4 input input-bordered w-full"
@@ -42,8 +42,10 @@ function InputWithError(props: InputWithErrorProps): React.ReactElement {
               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>{error.title}</span>
-          {error.message ?? <p>{error?.message}</p>}
+          <div>
+            <p className="font-semibold">{error.title}</p>
+            <p>{error?.message}</p>
+          </div>
         </div>
       )}
     </label>

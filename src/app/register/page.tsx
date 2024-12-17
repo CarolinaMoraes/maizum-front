@@ -1,50 +1,48 @@
 "use client";
 
-import { UserLoggedContext } from "@/contexts/userLoggedContext";
-import useAuth from "@/hooks/login/useAuth";
+import InputWithError from "@/components/inputWithError";
+import FormSubmitAlert from "@/components/formSubmitAlert";
+import useRegisterUser from "@/hooks/register/useRegisterUser";
+import { RegisterUserPayload } from "@/types/registerUserPayload";
+import axios, { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import InputWithError from "@/components/inputWithError";
-import { AxiosError } from "axios";
-import FormSubmitAlert from "@/components/formSubmitAlert";
 import { SubmitFormErrorReponse } from "@/types/submitFormErrorResponse";
 
-type Inputs = {
-  email: string;
-  password: string;
-};
+interface Inputs extends RegisterUserPayload {
+  confirmPassword: string;
+}
 
-export default function Login() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [loadingLogin, setLoadingLogin] = useState(false);
-  const [submitError, setSubmitError] =
-    useState<AxiosError<SubmitFormErrorReponse> | null>(null);
-  const { loggedUser } = useContext(UserLoggedContext);
-  const { login } = useAuth();
-  const router = useRouter();
+function Register() {
+  const { registerUser } = useRegisterUser();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [loadingRegister, setLoadingRegister] = useState(false);
+  const [submitError, setSubmitError] =
+    useState<AxiosError<SubmitFormErrorReponse> | null>(null);
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setLoadingLogin(true);
+    setLoadingRegister(true);
 
-    const response = await login(data.email, data.password);
+    const response = await registerUser({
+      firstname: data.firstname,
+      lastname: data.lastname,
+      password: data.password,
+      email: data.email,
+    });
 
-    setLoadingLogin(false);
+    setLoadingRegister(false);
 
-    if (response instanceof AxiosError) {
+    if (axios.isAxiosError(response)) {
       setSubmitError(response);
-      return;
-    }
-
-    if (loggedUser) {
-      router.push("/dashboard");
     }
   };
 
@@ -59,14 +57,52 @@ export default function Login() {
           alt="Maizum logo"
           priority
         />
-        <h2 className="text-2xl font-semibold">
-          Welcome! Nice to see you here
-        </h2>
-        <p>Sign in by entering the information below</p>
+        <h2 className="text-2xl font-semibold">Let's get started</h2>
+        <p>
+          Fill the information below so that we can proceed with your
+          registration
+        </p>
       </div>
 
-      <div className="w-4/6 mx-auto">
+      <div className="w-5/6 mx-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex gap-2">
+            <InputWithError
+              labelName="Firstname"
+              inputId="input-firstname"
+              registerError={register("firstname", {
+                required: "This field is required",
+                pattern: {
+                  value: /^\S+.*$/,
+                  message: "This field can't be blank",
+                },
+              })}
+              error={{
+                show: Boolean(errors?.firstname),
+                title: "Input invalid!",
+                message: errors?.firstname?.message,
+              }}
+            />
+
+            <InputWithError
+              labelName="Lastname"
+              inputId="input-lastname"
+              registerError={register("lastname", {
+                required: "This field is required",
+                minLength: 1,
+                pattern: {
+                  value: /^\S+.*$/,
+                  message: "This field can't be blank",
+                },
+              })}
+              error={{
+                show: Boolean(errors?.lastname),
+                title: "Input invalid!",
+                message: errors?.lastname?.message,
+              }}
+            />
+          </div>
+
           <InputWithError
             labelName="Email"
             inputId="input-email"
@@ -109,6 +145,7 @@ export default function Login() {
               peek
             </button>
           </div>
+
           {Boolean(submitError) && (
             <FormSubmitAlert
               title="An error ocurred"
@@ -122,18 +159,20 @@ export default function Login() {
           )}
 
           <button className="btn btn-primary w-full my-4" type="submit">
-            {loadingLogin ? (
+            {loadingRegister ? (
               <span className="loading loading-spinner"></span>
             ) : (
-              <span>Login</span>
+              <span>Register</span>
             )}
           </button>
         </form>
 
-        <Link className="text-center link link-secondary" href="/register">
-          Don't have an account? Click here to create one
+        <Link className="text-center link link-secondary" href="/login">
+          Already have an account? Click here to login
         </Link>
       </div>
     </div>
   );
 }
+
+export default Register;

@@ -33,6 +33,7 @@ export default function useAuth() {
       setLoggedUser(userData);
     } catch (error) {
       console.log(error);
+      return error;
     }
   };
 
