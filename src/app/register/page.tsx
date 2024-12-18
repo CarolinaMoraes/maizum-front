@@ -10,6 +10,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { SubmitFormErrorReponse } from "@/types/submitFormErrorResponse";
+import { useRouter } from "next/navigation";
 
 interface Inputs extends RegisterUserPayload {
   confirmPassword: string;
@@ -28,6 +29,7 @@ function Register() {
   const [loadingRegister, setLoadingRegister] = useState(false);
   const [submitError, setSubmitError] =
     useState<AxiosError<SubmitFormErrorReponse> | null>(null);
+  const router = useRouter();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoadingRegister(true);
@@ -43,7 +45,10 @@ function Register() {
 
     if (axios.isAxiosError(response)) {
       setSubmitError(response);
+      return;
     }
+
+    router.push("/register/success");
   };
 
   return (
@@ -149,6 +154,7 @@ function Register() {
           {Boolean(submitError) && (
             <FormSubmitAlert
               title="An error ocurred"
+              alertType="error"
               message={
                 submitError?.status === 500
                   ? "An internal error ocurred. Try again or contact support"

@@ -112,6 +112,7 @@ export default function Login() {
           {Boolean(submitError) && (
             <FormSubmitAlert
               title="An error ocurred"
+              alertType="error"
               message={
                 submitError?.status === 500
                   ? "An internal error ocurred. Try again or contact support"

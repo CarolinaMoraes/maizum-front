@@ -3,14 +3,18 @@ import React from "react";
 interface FormSubmitAlertProps {
   title: string;
   message?: string;
+  alertType: string;
   closeCallback: () => void;
 }
 
 function FormSubmitAlert(props: FormSubmitAlertProps) {
-  const { title, message, closeCallback } = props;
+  const { title, message, alertType, closeCallback } = props;
 
   return (
-    <div role="alert" className="alert alert-error flex justify-between">
+    <div
+      role="alert"
+      className={`alert alert-error flex justify-between alert-${alertType}`}
+    >
       <div>
         <h3 className="font-bold">{title}</h3>
         <div className="text-xs">{message}</div>
